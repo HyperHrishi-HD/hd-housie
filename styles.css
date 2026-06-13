@@ -2098,6 +2098,53 @@ body.theme-beach-forest #close-manual-btn {
         font-size: 0.75rem !important;
         padding: 3px 5px !important;
     }
+    .host-display-right .host-controls-box {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        padding: 8px !important;
+    }
+    #control-manual-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    #control-manual-panel button {
+        min-height: 28px !important;
+        font-size: 0.8rem !important;
+        padding: 2px 4px !important;
+    }
+    #control-manual-panel #host-draw-btn {
+        min-height: 32px !important;
+        font-size: 0.85rem !important;
+    }
+    #control-auto-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        justify-content: center !important;
+    }
+    #control-auto-panel button {
+        min-height: 28px !important;
+        font-size: 0.8rem !important;
+        padding: 2px 4px !important;
+    }
+    #control-auto-panel div {
+        margin-bottom: 2px !important;
+    }
+    #host-auto-seconds {
+        height: 4px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    #host-auto-seconds-val {
+        font-size: 0.8rem !important;
+    }
 }
 
 /* Vertical Mobiles (Portrait) layout for TV Mode / Host View */
@@ -2151,5 +2198,50 @@ body.theme-beach-forest #close-manual-btn {
         height: auto !important;
         font-size: 0.85rem !important;
     }
+}
+
+/* In-Room Chat Styling */
+.chat-message-bubble {
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.chat-message-bubble.mine {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--primary-color), #d4af37) !important;
+    color: #000 !important;
+    border-bottom-right-radius: 4px;
+    font-weight: 500;
+}
+.chat-message-bubble.other {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+    border-bottom-left-radius: 4px;
+}
+.chat-message-sender {
+    font-size: 0.72rem;
+    opacity: 0.6;
+    margin-bottom: 2px;
+}
+.chat-message-sender.mine {
+    text-align: right;
+    align-self: flex-end;
+}
+.chat-message-sender.other {
+    text-align: left;
+    align-self: flex-start;
+}
+.emoji-btn:hover {
+    transform: scale(1.25);
+}
+.quick-msg-btn:hover {
+    background: rgba(255,255,255,0.15) !important;
+    border-color: rgba(255,255,255,0.2) !important;
 }
 

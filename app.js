@@ -49,7 +49,10 @@ let appState = {
     autoCallActive: false,
     autoCallSeconds: 5,
     isAutoCallLeader: false,
-    autoCallIntervalId: null
+    autoCallIntervalId: null,
+    chatHistory: [],
+    lastChatId: null,
+    joinTime: 0
 };
 
 // Shop Items Database
@@ -97,6 +100,7 @@ function init() {
     }
 
     setupEventListeners();
+    initChat();
     initMatrixCanvas();
 
     // Check for sharing room code in URL hash
@@ -433,6 +437,14 @@ function leaveGameLocally() {
     document.getElementById('header-host-stats').style.display = 'none';
     document.getElementById('tts-toggle-btn').style.display = 'none';
     
+    // Hide and close chat
+    const chatBtn = document.getElementById('chat-toggle-btn');
+    const chatPanel = document.getElementById('chat-panel');
+    if (chatBtn) chatBtn.style.display = 'none';
+    if (chatPanel) chatPanel.style.display = 'none';
+    appState.chatHistory = [];
+    appState.lastChatId = null;
+    
     appState.isHostView = false;
     appState.isPlayerTvView = false;
     
@@ -499,7 +511,7 @@ function updateHeader() {
             if (newIdx > oldIdx) {
                 showNotification(`🎉 Rank Up! You are now ${rankInfo.name}!`);
             } else if (newIdx < oldIdx) {
-                showNotification(`Rank Changed: You are now ${rankInfo.name}.`);
+                showNotification(`You are now ${rankInfo.name}.`);
             }
         }
         appState.currentRankName = rankInfo.name;
@@ -757,6 +769,22 @@ async function joinGameUI() {
         if (ctrlBox) ctrlBox.style.display = 'block';
     }
     
+    // Initialize Chat for the room
+    if (appState.room.code) {
+        appState.joinTime = Date.now();
+        appState.lastChatId = null;
+        
+        const saved = localStorage.getItem(`chat_${appState.room.code}`);
+        appState.chatHistory = saved ? JSON.parse(saved) : [];
+        renderAllChatMessages();
+        
+        const chatBtn = document.getElementById('chat-toggle-btn');
+        if (chatBtn) chatBtn.style.display = 'flex';
+        
+        const badge = document.getElementById('chat-unread-badge');
+        if (badge) badge.style.display = 'none';
+    }
+    
     // Check for saved tickets
     let hasTickets = false;
     if (db && roomRef) {
@@ -835,6 +863,15 @@ async function joinGameUI() {
             appState.room.claims = newClaims;
             appState.room.status = data.status || 'waiting';
             
+            // Handle chat messages
+            if (data.chatSignal && data.chatSignal.id && data.chatSignal.id !== appState.lastChatId) {
+                const isSubsequent = appState.lastChatId !== null;
+                appState.lastChatId = data.chatSignal.id;
+                if (isSubsequent || (Date.now() - data.chatSignal.timestamp < 4000)) {
+                    receiveChatMessage(data.chatSignal);
+                }
+            }
+            
             const playersObj = data.players || {};
             appState.room.playerCount = Object.keys(playersObj).length;
 
@@ -849,7 +886,15 @@ async function joinGameUI() {
 
             // Handle auto call state sync
             const autoCallData = data.autoCall || { active: false, seconds: 5 };
-            appState.autoCallActive = !!autoCallData.active;
+            let active = !!autoCallData.active;
+            
+            // If Full House has been claimed, force active to false on host client
+            if (newClaims['Full House'] && active && appState.room.isHost) {
+                active = false;
+                stopAutoCall();
+            }
+            
+            appState.autoCallActive = active;
             appState.autoCallSeconds = parseInt(autoCallData.seconds) || 5;
 
             if (!appState.autoCallActive) {
@@ -1680,6 +1725,12 @@ function syncHostGameState() {
 function toggleAutoCall(seconds) {
     if (!appState.room.isHost) return;
     
+    // Cannot start Auto Call if Full House is claimed
+    if (!appState.autoCallActive && appState.room.claims && appState.room.claims['Full House']) {
+        showNotification("Auto Call is disabled until the game is reset.");
+        return;
+    }
+    
     const newActive = !appState.autoCallActive;
     
     // Set this client as the leader if starting, clear if stopping
@@ -1726,6 +1777,7 @@ function startAutoCallTimer() {
 function syncAutoCallUI() {
     const active = appState.autoCallActive;
     const secs = appState.autoCallSeconds;
+    const isFullHouseClaimed = !!(appState.room.claims && appState.room.claims['Full House']);
     
     // TV Layout elements
     const tvBtn = document.getElementById('host-auto-btn');
@@ -1733,12 +1785,23 @@ function syncAutoCallUI() {
     const tvValSpan = document.getElementById('host-auto-seconds-val');
     
     if (tvBtn) {
-        tvBtn.innerText = active ? "Stop Auto Call" : "Start Auto Call";
-        tvBtn.className = active ? "danger-btn" : "primary-btn";
+        if (isFullHouseClaimed) {
+            tvBtn.innerText = "Auto Call Disabled";
+            tvBtn.className = "danger-btn disabled";
+            tvBtn.style.opacity = "0.6";
+            tvBtn.style.cursor = "not-allowed";
+            tvBtn.disabled = true;
+        } else {
+            tvBtn.innerText = active ? "Stop Auto Call" : "Start Auto Call";
+            tvBtn.className = active ? "danger-btn" : "primary-btn";
+            tvBtn.style.opacity = "";
+            tvBtn.style.cursor = "";
+            tvBtn.disabled = false;
+        }
     }
     if (tvInput) {
         tvInput.value = secs;
-        tvInput.disabled = active;
+        tvInput.disabled = active || isFullHouseClaimed;
     }
     if (tvValSpan) {
         tvValSpan.innerText = secs + 's';
@@ -1758,3 +1821,219 @@ document.addEventListener('click', () => {
 
 // Start
 document.addEventListener('DOMContentLoaded', init);
+
+// ==========================================
+// CHAT FUNCTIONALITY
+// ==========================================
+
+function initChat() {
+    const toggleBtn = document.getElementById('chat-toggle-btn');
+    const closeBtn = document.getElementById('chat-close-btn');
+    const panel = document.getElementById('chat-panel');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const input = document.getElementById('chat-input');
+    const clearBtn = document.getElementById('chat-clear-btn');
+    
+    if (toggleBtn && panel) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = panel.style.display === 'none' || panel.style.display === '';
+            panel.style.display = isHidden ? 'flex' : 'none';
+            if (isHidden) {
+                // Clear unread badge
+                const badge = document.getElementById('chat-unread-badge');
+                if (badge) badge.style.display = 'none';
+                
+                // Scroll to bottom
+                const msgContainer = document.getElementById('chat-messages');
+                if (msgContainer) {
+                    setTimeout(() => {
+                        msgContainer.scrollTop = msgContainer.scrollHeight;
+                    }, 50);
+                }
+            }
+        });
+    }
+    
+    if (closeBtn && panel) {
+        closeBtn.addEventListener('click', () => {
+            panel.style.display = 'none';
+        });
+    }
+    
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            appState.chatHistory = [];
+            if (appState.room.code) {
+                localStorage.removeItem(`chat_${appState.room.code}`);
+            }
+            renderAllChatMessages();
+        });
+    }
+    
+    const sendFn = () => {
+        const text = input.value.trim();
+        if (!text) return;
+        
+        sendChatMessage(text, false);
+        input.value = '';
+    };
+    
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendFn);
+    }
+    
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendFn();
+            }
+        });
+    }
+    
+    // Quick emoji buttons
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const emoji = btn.dataset.emoji;
+            if (emoji) {
+                sendChatMessage(emoji, true);
+            }
+        });
+    });
+    
+    // Quick select messages
+    document.querySelectorAll('.quick-msg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const text = btn.innerText;
+            if (text) {
+                sendChatMessage(text, false);
+            }
+        });
+    });
+}
+
+function sendChatMessage(text, isEmoji) {
+    if (!appState.room.code) return;
+    
+    const payload = {
+        sender: appState.player.name || "Guest",
+        text: text,
+        isEmoji: !!isEmoji,
+        timestamp: Date.now(),
+        id: Math.random().toString(36).substr(2, 9)
+    };
+    
+    if (db && roomRef) {
+        update(roomRef, {
+            chatSignal: payload
+        });
+    } else {
+        // Local mode fallback
+        receiveChatMessage(payload);
+    }
+}
+
+function receiveChatMessage(msg) {
+    // Avoid duplicates
+    if (appState.chatHistory.some(m => m.id === msg.id)) return;
+    
+    appState.chatHistory.push(msg);
+    if (appState.chatHistory.length > 50) {
+        appState.chatHistory.shift();
+    }
+    
+    if (appState.room.code) {
+        localStorage.setItem(`chat_${appState.room.code}`, JSON.stringify(appState.chatHistory));
+    }
+    
+    renderAllChatMessages();
+    
+    // Show notification badge if closed
+    const panel = document.getElementById('chat-panel');
+    if (panel && (panel.style.display === 'none' || panel.style.display === '')) {
+        const badge = document.getElementById('chat-unread-badge');
+        if (badge) badge.style.display = 'block';
+    }
+    
+    // Check for emoji animation
+    const emoji = msg.isEmoji ? msg.text : extractEmojis(msg.text);
+    if (emoji) {
+        triggerEmojiAnimation(emoji);
+    }
+}
+
+function extractEmojis(text) {
+    const match = text.match(/[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
+    return match ? match[0] : null;
+}
+
+function triggerEmojiAnimation(emoji) {
+    const container = document.body;
+    const amount = 8; // Number of floating emojis
+    for (let i = 0; i < amount; i++) {
+        const el = document.createElement('div');
+        el.innerText = emoji;
+        el.style.position = 'fixed';
+        el.style.bottom = '-50px';
+        // Random horizontal start position
+        el.style.left = Math.random() * 80 + 10 + 'vw';
+        el.style.fontSize = Math.random() * 20 + 24 + 'px';
+        el.style.zIndex = '9999';
+        el.style.pointerEvents = 'none';
+        el.style.transition = 'all 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        // Random rotation
+        const rot = Math.random() * 60 - 30;
+        el.style.transform = `rotate(${rot}deg)`;
+        
+        container.appendChild(el);
+        
+        // Animate floating up and drifting horizontally
+        setTimeout(() => {
+            el.style.bottom = '105vh';
+            const drift = Math.random() * 100 - 50;
+            el.style.transform = `rotate(${rot + Math.random() * 90 - 45}deg) translateX(${drift}px)`;
+            el.style.opacity = '0';
+        }, 50);
+        
+        // Cleanup
+        setTimeout(() => {
+            el.remove();
+        }, 3100);
+    }
+}
+
+function renderAllChatMessages() {
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    appState.chatHistory.forEach(msg => {
+        const isMine = msg.sender === appState.player.name;
+        
+        // Sender element
+        const senderEl = document.createElement('div');
+        senderEl.className = `chat-message-sender ${isMine ? 'mine' : 'other'}`;
+        senderEl.innerText = msg.sender;
+        container.appendChild(senderEl);
+        
+        // Bubble element
+        const bubble = document.createElement('div');
+        bubble.className = `chat-message-bubble ${isMine ? 'mine' : 'other'}`;
+        bubble.innerText = msg.text;
+        
+        // If single emoji, render larger and transparent
+        const trimmed = msg.text.trim();
+        const isSingleEmoji = msg.isEmoji || (trimmed.length <= 4 && /[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(trimmed));
+        if (isSingleEmoji) {
+            bubble.style.background = 'transparent';
+            bubble.style.border = 'none';
+            bubble.style.fontSize = '2.5rem';
+            bubble.style.padding = '0';
+            bubble.style.boxShadow = 'none';
+        }
+        
+        container.appendChild(bubble);
+    });
+    
+    container.scrollTop = container.scrollHeight;
+}
