@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<!-- v1 RELEASE -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD HOUSIE</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <script>
+      // Clean up old stuck service worker and cache storage glitch
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          for (const key of keys) {
+            caches.delete(key);
+          }
+        });
+      }
+    </script>
+</head>
+<body class="theme-default">
+
+    <div id="app">
+        <!-- Matrix Rain Canvas for Matrix Theme -->
+        <canvas id="matrix-canvas"></canvas>
+
+        <header id="main-header">
+            <div class="header-top-row">
+                <div id="header-room-code-container" style="display: none;">
+                    Room: <span id="current-room-code">-----</span>
+                    <span id="header-host-stats" style="display: none; margin-left: 10px; font-size: 0.9rem; opacity: 0.85;">
+                        | Pot: 🪙<span id="header-pot">0</span> | Players: <span id="header-players">0</span>
+                    </span>
+                </div>
+                <div class="logo">HD HOUSIE</div>
+                <div id="header-role-badge-container" style="display: none;">
+                    <span id="role-badge" class="role-badge player">Player</span>
+                </div>
+            </div>
+            <div class="user-info" id="header-user-info" style="display: none;">
+                <span id="header-badge" class="badge">Novice</span>
+                <span id="header-name">Player</span>
+                <span class="coins-display">🪙 <span id="header-coins">0</span></span>
+                <button id="tts-toggle-btn" class="nav-btn" style="display: none;">🔈</button>
+                <button id="nav-lobby-btn" class="nav-btn">Lobby</button>
+                <button id="nav-shop-btn" class="nav-btn">Shop</button>
+            </div>
+        </header>
+
+        <main id="view-container">
+            <!-- Auth / Login View -->
+            <section id="auth-view" class="view active">
+                <div class="card glass-card">
+                    <h2>Welcome to HD HOUSIE</h2>
+                    <p>Enter your player name to begin</p>
+                    <input type="text" id="player-name-input" placeholder="Your Name" maxlength="15">
+                    <button id="login-btn" class="primary-btn">Enter</button>
+                </div>
+            </section>
+
+            <!-- Lobby View -->
+            <section id="lobby-view" class="view">
+                <div class="card glass-card">
+                    <h2>Lobby</h2>
+                    <div class="lobby-actions">
+                        <div class="action-group">
+                            <h3>Host a Game</h3>
+                            <p>Create a new room and invite players.</p>
+                            <button id="create-room-btn" class="primary-btn">Create Room</button>
+                        </div>
+                        <div class="divider">OR</div>
+                        <div class="action-group">
+                            <h3>Join a Game</h3>
+                            <div style="position: relative; display: inline-block;">
+                                <input type="text" id="room-code-input" placeholder="5-Letter Code" maxlength="5" style="text-transform: uppercase;">
+                                <span onclick="document.getElementById('room-code-input').value=''" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 20px; opacity: 0.6; line-height: 1;">&times;</span>
+                            </div>
+                            <br>
+                            <button id="join-room-btn" class="secondary-btn" style="margin-top: 0.5rem;">Join Room</button>
+                        </div>
+                        <div class="divider"></div>
+                        <button id="logout-btn" class="danger-btn" style="margin-top: 0.5rem;">Logout</button>
+                        <button id="manual-btn" class="nav-btn" style="margin-top: 0.5rem; width: 100%;">How to Play</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Room / Game View -->
+            <section id="game-view" class="view">
+                <div class="game-layout">
+                    <!-- Left Column: Board, Controls & Claims (Window B) -->
+                    <div class="game-left panel glass-card">
+                        <div class="game-stats">
+                            <div class="stat-box">Pot: 🪙 <span id="room-pot">0</span></div>
+                            <div class="stat-box">Players: <span id="room-player-count">0</span></div>
+                        </div>
+
+                        <!-- Host Controls -->
+                        <div id="host-controls" style="display: none;">
+                            <button id="next-number-btn" class="primary-btn big-btn">Draw Next Number</button>
+                            <button id="reset-game-btn" class="danger-btn">Reset Game</button>
+                        </div>
+
+                        <!-- Side-by-side row container on desktop for Last Called and Claims -->
+                        <div class="desktop-row-container">
+                            <!-- Current Number Display -->
+                            <div class="current-number-display" style="position: relative;">
+                                <button id="show-history-btn" class="secondary-btn" style="position: absolute; top: 10px; right: 10px; width: auto; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; background: rgba(255,255,255,0.1); box-shadow: none; z-index: 10;">History</button>
+                                <div id="last-called-number" class="big-number">-</div>
+                                <p>Last Called</p>
+                            </div>
+
+                            <!-- Claims Area (Prize Buttons) -->
+                            <div class="claims-area" id="claims-area" style="display: none;">
+                                <h3>Claim Prize</h3>
+                                <div class="claim-buttons">
+                                    <button class="claim-btn" data-claim="Early 5">Early 5</button>
+                                    <button class="claim-btn" data-claim="4 Corners">4 Corners</button>
+                                    <button class="claim-btn" data-claim="Top Row">Top Row</button>
+                                    <button class="claim-btn" data-claim="Middle Row">Middle Row</button>
+                                    <button class="claim-btn" data-claim="Bottom Row">Bottom Row</button>
+                                    <button class="claim-btn" data-claim="Full House">Full House</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Board 1-90 -->
+                        <div id="housie-board" class="housie-board">
+                            <!-- JS generates 90 cells -->
+                        </div>
+                        
+                        <!-- Payout Info -->
+                        <div class="payout-info">
+                            <h3>Payouts</h3>
+                            <ul>
+                                <li>Early 5: 10% (🪙<span id="payout-early">0</span>)</li>
+                                <li>4 Corners: 10% (🪙<span id="payout-corners">0</span>)</li>
+                                <li>Rows (Top, Middle, Bottom): 10% (🪙<span id="payout-row">0</span>)</li>
+                                <li>Full House: 50% (🪙<span id="payout-fh">0</span>)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Tickets & Setup (Window A) -->
+                    <div class="game-right panel">
+                        <div class="ticket-controls glass-card" id="ticket-setup">
+                            <h3>Get Tickets</h3>
+                            <p>Bet <input type="number" id="bet-amount" value="10" min="0" style="width: 60px; padding: 4px; text-align: center; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); font-family: var(--font-main); display: inline-block; margin-bottom: 0;" /> Coins per ticket.</p>
+                            <select id="ticket-count-select" style="margin-top: 1rem;">
+                                <option value="1">1 Ticket</option>
+                                <option value="2">2 Tickets</option>
+                                <option value="3">3 Tickets</option>
+                                <option value="4">4 Tickets</option>
+                            </select>
+                            <button id="buy-tickets-btn" class="primary-btn">Buy Tickets</button>
+                        </div>
+
+                        <div id="tickets-container" class="tickets-container">
+                            <!-- JS generates tickets -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shop View -->
+            <section id="shop-view" class="view">
+                <div class="card glass-card shop-card" style="position: relative;">
+                    <button id="close-shop-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold; transition: color 0.2s;">&times;</button>
+                    <h2>Shop</h2>
+                    <p>Customize your HD HOUSIE experience.</p>
+                    
+                    <div class="shop-sections">
+                        <div class="shop-section">
+                            <h3>Themes</h3>
+                            <div class="item-grid" id="shop-themes">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>Skins</h3>
+                            <div class="item-grid" id="shop-skins">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                        <div class="shop-section">
+                            <h3>Markers</h3>
+                            <div class="item-grid" id="shop-markers">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Host Display / TV View -->
+            <section id="host-display-view" class="view">
+                <div id="host-display-layout" class="host-display-layout">
+                    <!-- Left: Winners, Payouts & Auto Call (separate glass-cards) -->
+                    <div class="host-display-left">
+                        <div class="winners-box glass-card">
+                            <h3>Winners</h3>
+                            <div id="host-winners-list">
+                                <!-- JS claims list -->
+                            </div>
+                        </div>
+                        <div class="host-payout-box glass-card">
+                            <h3>Payouts</h3>
+                            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                                <li>Early 5: 10% (🪙<span id="host-payout-early">0</span>)</li>
+                                <li>4 Corners: 10% (🪙<span id="host-payout-corners">0</span>)</li>
+                                <li>Rows (Top, Middle, Bottom): 10% (🪙<span id="host-payout-row">0</span>)</li>
+                                <li>Full House: 50% (🪙<span id="host-payout-fh">0</span>)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Last Called (Top) & History (Bottom) -->
+                    <div class="host-display-middle">
+                        <div class="last-called-box glass-card" style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 1.2;">
+                            <div id="host-last-called-number" class="big-number">-</div>
+                            <p style="margin-top: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">Last Called</p>
+                        </div>
+                        <div class="host-history-box glass-card" style="width: 100%; display: flex; flex-direction: column; flex: 1;">
+                            <h3 style="margin-bottom: 10px;">Draw History</h3>
+                            <div id="host-history-list" class="history-list-horizontal">
+                                <!-- JS horizontal history bubbles -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Number Grid & Controls (Single column) -->
+                    <div class="host-display-right glass-card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 1rem;">
+                        <div id="host-housie-board" class="housie-board">
+                            <!-- JS generates 90 cells -->
+                        </div>
+                        
+                        <!-- Integrated Mode Controls in the bottom right empty space -->
+                        <div class="host-controls-box glass-card" style="padding: 12px; margin-top: auto; background: rgba(0,0,0,0.4); box-shadow: inset 0 0 15px rgba(243, 156, 18, 0.1); border: 1px solid var(--glass-border); border-radius: 8px;">
+                            <!-- Tabs -->
+                            <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+                                <button id="toggle-manual-btn" class="nav-btn active" style="padding: 4px 10px; font-size: 0.85rem; min-height: 30px;">Manual</button>
+                                <button id="toggle-auto-btn" class="nav-btn" style="padding: 4px 10px; font-size: 0.85rem; min-height: 30px;">Auto Call</button>
+                            </div>
+                            
+                            <!-- Manual Controls -->
+                            <div id="control-manual-panel" style="display: flex; flex-direction: column; gap: 8px;">
+                                <button id="host-draw-btn" class="primary-btn" style="min-height: 40px; font-size: 1rem; width: 100%; font-weight: bold;">Draw Next Number</button>
+                                <button id="host-reset-btn" class="danger-btn" style="min-height: 34px; font-size: 0.85rem; width: 100%;">Reset Game</button>
+                            </div>
+                            
+                            <!-- Auto Call Controls -->
+                            <div id="control-auto-panel" style="display: none; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px;">
+                                    <label for="host-auto-seconds" style="font-size: 0.85rem; opacity: 0.9; color: var(--text-color); white-space: nowrap;">Interval: <span id="host-auto-seconds-val" style="font-weight: bold; color: var(--primary-color);">5s</span></label>
+                                    <input type="range" id="host-auto-seconds" min="3" max="15" value="5" style="flex-grow: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); outline: none; cursor: pointer; accent-color: var(--primary-color);">
+                                </div>
+                                <button id="host-auto-btn" class="primary-btn" style="min-height: 36px; padding: 4px 8px; font-size: 0.9rem; width: 100%;">Start Auto Call</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </main>
+        
+        <!-- Notifications Container -->
+        <div id="notifications-container"></div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 400px; text-align: center; position: relative;">
+            <h3 id="modal-title" style="margin-bottom: 15px; font-size: 1.5rem;">Confirm</h3>
+            <p id="modal-message" style="margin-bottom: 25px; opacity: 0.9;">Are you sure?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="modal-cancel" class="secondary-btn" style="width: auto; padding: 10px 20px;">Cancel</button>
+                <button id="modal-confirm" class="primary-btn" style="width: auto; padding: 10px 20px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 500px; width: 90%; text-align: center; max-height: 80vh; overflow-y: auto; position: relative;">
+            <button id="close-history-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold;">&times;</button>
+            <h3 style="margin-bottom: 20px; font-size: 1.5rem;">Draw History</h3>
+            <div id="history-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <!-- JS generates history bubbles -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruction Manual Modal -->
+    <div id="manual-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative; text-align: left;">
+            <button id="close-manual-btn" class="close-btn">&times;</button>
+            <h3 style="margin-bottom: 20px; font-size: 1.5rem; text-align: center;">How to Play HD HOUSIE</h3>
+            <div style="opacity: 0.9; line-height: 1.6; font-size: 1rem;">
+                <p><strong>1. Starting the Game:</strong><br>Log in and either <b>Create a Room</b> (you become the Host) or <b>Join a Room</b> using a 5-letter code from your Host.</p><br>
+                <p><strong>2. Getting Tickets:</strong><br>Select 1 to 4 tickets. Set a custom bet amount per ticket. (If you have 0 coins, bets are waived and tickets are free!) Click <b>Buy Tickets</b>.</p><br>
+                <p><strong>3. Drawing Numbers (Host Only):</strong><br>The Host clicks <b>Draw Next Number</b>. The number appears on everyone's screen instantly.</p><br>
+                <p><strong>4. Marking Tickets:</strong><br>If the called number is on your ticket, simply tap/click it to stamp it.</p><br>
+                <p><strong>5. Winning & Claiming:</strong><br>
+                - <b>Early 5:</b> Stamp any 5 numbers across all your tickets.<br>
+                - <b>4 Corners:</b> Stamp the first and last numbers on the top and bottom rows of a single ticket.<br>
+                - <b>Rows:</b> Stamp all numbers in the Top, Middle, or Bottom row of a single ticket.<br>
+                - <b>Full House:</b> Stamp all 15 numbers on a single ticket.<br>
+                Click the corresponding <b>Claim Prize</b> button. The game will automatically verify your tickets and pay you!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js" type="module"></script>
+</body>
+</html>
