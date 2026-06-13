@@ -58,20 +58,22 @@ const shopItems = {
         { id: 'default', name: 'Default Dark', price: 0 },
         { id: 'midnight-star', name: 'Midnight Star', price: 50 },
         { id: 'gold-plate', name: 'Gold Plate', price: 100 },
-        { id: 'matrix-rain', name: 'Matrix Rain', price: 150 }
+        { id: 'matrix-rain', name: 'Matrix Rain', price: 500 },
+        { id: 'neon', name: 'Neon', price: 1000 },
+        { id: 'waves', name: 'Waves', price: 5000 }
     ],
     skins: [
         { id: 'none', name: 'Basic', price: 0 },
         { id: 'ruby', name: 'Ruby', price: 20 },
-        { id: 'sapphire', name: 'Sapphire', price: 20 },
-        { id: 'emerald', name: 'Emerald', price: 20 },
-        { id: 'amethyst', name: 'Amethyst', price: 20 },
-        { id: 'gold', name: 'Gold', price: 50 },
+        { id: 'sapphire', name: 'Sapphire', price: 30 },
+        { id: 'emerald', name: 'Emerald', price: 40 },
+        { id: 'amethyst', name: 'Amethyst', price: 50 },
+        { id: 'gold', name: 'Gold', price: 60 },
         { id: 'holographic', name: 'Holographic', price: 200 }
     ],
     markers: [
         { id: 'glass-stamp', name: 'Glass Stamp', price: 0 },
-        { id: 'fire-glow', name: 'Fire Glow', price: 30 }
+        { id: 'fire-glow', name: 'Fire Glow', price: 100 }
     ]
 };
 
@@ -130,8 +132,7 @@ function init() {
 function setupEventListeners() {
     // Nav
     document.getElementById('nav-lobby-btn').addEventListener('click', () => {
-        const activeView = document.querySelector('.view.active');
-        if (activeView && (activeView.id === 'game-view' || activeView.id === 'host-display-view')) {
+        if (appState.room.code) {
             if (appState.room.isHost) {
                 showConfirm("Close Room", "You are the Host. Leaving will close this room permanently. Are you sure?", () => {
                     if (db && roomRef) set(roomRef, null); // Delete room
@@ -148,8 +149,13 @@ function setupEventListeners() {
     });
 
     document.getElementById('nav-shop-btn').addEventListener('click', () => {
-        renderShop();
-        switchView('shop-view');
+        const activeView = document.querySelector('.view.active');
+        if (activeView && activeView.id === 'shop-view') {
+            switchView(previousView || 'lobby-view');
+        } else {
+            renderShop();
+            switchView('shop-view');
+        }
     });
     
     // Shop Close Button

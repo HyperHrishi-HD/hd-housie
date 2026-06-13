@@ -140,6 +140,368 @@ body.theme-matrix-rain {
     --marker-glass-rgb: 0, 255, 0; /* Green */
 }
 
+/* Universal Background Layer Rules */
+.theme-background-layer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -3;
+    overflow: hidden;
+}
+
+body.theme-waves #waves-background {
+    display: block;
+}
+
+body.theme-neon #neon-background {
+    display: block;
+}
+
+/* Theme: Neon */
+body.theme-neon {
+    --bg-color: #0b0214;
+    --text-color: #fce8ff;
+    --primary-color: #ff007f; /* Hot Pink */
+    --primary-hover: #e60073;
+    --secondary-color: #00f0ff; /* Neon Cyan */
+    --card-bg: rgba(20, 5, 35, 0.85);
+    --glass-border: rgba(255, 0, 127, 0.3);
+    --primary-glow: rgba(255, 0, 127, 0.5);
+    --primary-glow-dim: rgba(0, 240, 255, 0.25);
+    --marker-glass-rgb: 0, 240, 255; /* Neon Cyan marker */
+    background: #0b0214;
+    overflow-x: hidden;
+}
+
+body.theme-neon .primary-btn {
+    background: #ff007f !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4) !important;
+}
+
+body.theme-neon .primary-btn:hover {
+    background: #ff3399 !important;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.8) !important;
+}
+
+body.theme-neon .secondary-btn {
+    background: #00f0ff !important;
+    color: #0b0214 !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+}
+
+body.theme-neon .secondary-btn:hover {
+    background: #33f3ff !important;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.8) !important;
+}
+
+body.theme-neon .claim-btn {
+    background: #ff007f !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4) !important;
+}
+
+body.theme-neon .claim-btn:hover {
+    background: #ff3399 !important;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.8) !important;
+}
+
+body.theme-neon .nav-btn {
+    background: rgba(255, 0, 127, 0.1) !important;
+    color: #ff007f !important;
+    border: 1px solid rgba(255, 0, 127, 0.3) !important;
+}
+
+body.theme-neon .nav-btn:hover {
+    background: #ff007f !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.7) !important;
+}
+
+/* Neon Logo Gradient Animation */
+body.theme-neon .logo {
+    background: linear-gradient(90deg, #ff007f, #00f0ff, #7f00ff, #ff007f);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: neonLogoShift 6s linear infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 0, 127, 0.4));
+}
+
+@keyframes neonLogoShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* Neon Theme Background Elements */
+#neon-background .neon-skyline-image {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('/neon_skyline.png') no-repeat center bottom;
+    background-size: cover;
+    opacity: 0.75;
+    z-index: -3;
+}
+
+#neon-background .neon-halo-ambient {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -2;
+    opacity: 0.55;
+}
+
+#neon-background .halo-light {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    mix-blend-mode: screen;
+}
+
+#neon-background .light-magenta {
+    width: 450px; height: 450px;
+    background: rgba(255, 0, 127, 0.65);
+    top: 5%; left: 15%;
+    animation: neonFloatLightM 18s ease-in-out infinite alternate;
+}
+
+#neon-background .light-cyan {
+    width: 550px; height: 550px;
+    background: rgba(0, 240, 255, 0.55);
+    top: 15%; right: 10%;
+    animation: neonFloatLightC 22s ease-in-out infinite alternate;
+}
+
+#neon-background .light-purple {
+    width: 380px; height: 380px;
+    background: rgba(127, 0, 255, 0.5);
+    bottom: 25%; left: 35%;
+    animation: neonFloatLightP 20s ease-in-out infinite alternate;
+}
+
+@keyframes neonFloatLightM {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(140px, 90px) scale(1.35); }
+}
+
+@keyframes neonFloatLightC {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-120px, -80px) scale(1.25); }
+}
+
+@keyframes neonFloatLightP {
+    0% { transform: translate(0, 0) scale(1.25); }
+    100% { transform: translate(90px, -140px) scale(0.85); }
+}
+
+#neon-background .neon-grid {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 35vh;
+    background-image: 
+        linear-gradient(to bottom, rgba(255, 0, 127, 0) 0%, rgba(255, 0, 127, 0.4) 100%),
+        linear-gradient(rgba(255, 0, 127, 0.18) 1.5px, transparent 1.5px),
+        linear-gradient(90deg, rgba(255, 0, 127, 0.18) 1.5px, transparent 1.5px);
+    background-size: 100% 100%, 45px 45px, 45px 45px;
+    background-position: center bottom;
+    transform: perspective(180px) rotateX(65deg);
+    transform-origin: top center;
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.95) 75%);
+    animation: neonGridScroll 3s linear infinite;
+    z-index: -1;
+}
+
+@keyframes neonGridScroll {
+    0% { background-position-y: 0px, 0px, 0px; }
+    100% { background-position-y: 0px, 45px, 45px; }
+}
+
+/* Theme: Waves */
+body.theme-waves {
+    --bg-color: #03045e;
+    --text-color: #caf0f8;
+    --primary-color: #00f0ff; /* Solid bright cyan for visibility */
+    --primary-hover: #00b4d8;
+    --secondary-color: #caf0f8;
+    --card-bg: rgba(2, 62, 138, 0.7);
+    --glass-border: rgba(144, 224, 239, 0.45);
+    --primary-glow: rgba(0, 240, 255, 0.6);
+    --primary-glow-dim: rgba(0, 180, 216, 0.15);
+    --marker-glass-rgb: 0, 180, 216; /* Cyan markers */
+    background: #020220;
+    overflow-x: hidden;
+}
+
+body.theme-waves .primary-btn {
+    background: rgba(0, 180, 216, 0.18) !important;
+    color: #fff !important;
+    border: 2px solid rgba(144, 224, 239, 0.6) !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(5px);
+}
+
+body.theme-waves .primary-btn:hover {
+    background: rgba(0, 180, 216, 0.38) !important;
+    border-color: rgba(144, 224, 239, 0.95) !important;
+    box-shadow: 0 0 15px rgba(144, 224, 239, 0.6) !important;
+}
+
+body.theme-waves .secondary-btn {
+    background: rgba(72, 202, 228, 0.18) !important;
+    color: #fff !important;
+    border: 2px solid rgba(144, 224, 239, 0.6) !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(5px);
+}
+
+body.theme-waves .secondary-btn:hover {
+    background: rgba(72, 202, 228, 0.38) !important;
+    border-color: rgba(144, 224, 239, 0.95) !important;
+    box-shadow: 0 0 15px rgba(144, 224, 239, 0.6) !important;
+}
+
+body.theme-waves .claim-btn {
+    background: rgba(0, 180, 216, 0.18) !important;
+    color: #fff !important;
+    border: 2px solid rgba(144, 224, 239, 0.6) !important;
+    font-weight: 700 !important;
+    backdrop-filter: blur(5px);
+}
+
+body.theme-waves .claim-btn:hover {
+    background: rgba(0, 180, 216, 0.38) !important;
+    border-color: rgba(144, 224, 239, 0.95) !important;
+    box-shadow: 0 0 15px rgba(144, 224, 239, 0.6) !important;
+}
+
+body.theme-waves .nav-btn {
+    background: rgba(0, 180, 216, 0.12) !important;
+    color: #caf0f8 !important;
+    border: 1.5px solid rgba(144, 224, 239, 0.45) !important;
+    backdrop-filter: blur(5px);
+}
+
+body.theme-waves .nav-btn:hover {
+    background: rgba(0, 180, 216, 0.35) !important;
+    color: #fff !important;
+    border-color: rgba(144, 224, 239, 0.85) !important;
+}
+
+/* Make last called number glowing and highly visible */
+body.theme-waves .big-number,
+body.theme-waves #last-called-number,
+body.theme-waves #host-last-called-number {
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00f0ff, 0 0 35px rgba(0, 240, 255, 0.9) !important;
+}
+
+/* Waves Theme Animated Background Elements */
+#waves-background {
+    background: #020220 url('/waves_sky_bg.png') no-repeat center bottom;
+    background-size: cover;
+}
+
+#waves-background .waves-video-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -4;
+}
+
+#waves-background .sea-sun {
+    position: absolute;
+    bottom: 35vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 253, 240, 0.9) 0%, rgba(254, 250, 224, 0.45) 30%, rgba(0, 180, 216, 0.15) 70%, transparent 100%);
+    filter: blur(8px);
+    opacity: 0.9;
+    box-shadow: 0 0 140px rgba(0, 180, 216, 0.65);
+    z-index: -3;
+    animation: sunPulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes sunPulse {
+    0% { transform: translateX(-50%) scale(1); opacity: 0.85; }
+    100% { transform: translateX(-50%) scale(1.1); opacity: 0.95; }
+}
+
+#waves-background .clouds-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 55vh;
+    overflow: hidden;
+    z-index: -3;
+}
+
+#waves-background .cloud {
+    position: absolute;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 45%, rgba(255, 255, 255, 0.05) 70%, transparent 100%);
+    filter: blur(24px); /* Extra heavy blur to look foggy and realistic */
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+#waves-background .cloud-1 {
+    width: 360px; height: 120px;
+    top: 10%; left: -360px;
+    animation: wavesDriftCloud 85s linear infinite;
+}
+
+#waves-background .cloud-2 {
+    width: 500px; height: 150px;
+    top: 18%; left: -500px;
+    animation: wavesDriftCloud 140s linear infinite;
+    animation-delay: -35s;
+}
+
+#waves-background .cloud-3 {
+    width: 260px; height: 90px;
+    top: 6%; left: -260px;
+    animation: wavesDriftCloud 105s linear infinite;
+    animation-delay: -70s;
+}
+
+@keyframes wavesDriftCloud {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(100vw + 500px)); }
+}
+
+/* Waves Logo Gradient Animation */
+body.theme-waves .logo {
+    background: linear-gradient(90deg, #90e0ef, #00b4d8, #0077b6, #90e0ef);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: wavesLogoShift 8s linear infinite;
+    filter: drop-shadow(0 0 4px rgba(144, 224, 239, 0.3));
+}
+
+@keyframes wavesLogoShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+
+
+
+
 .modal-close-btn {
     position: absolute; 
     top: 12px; 
@@ -1036,7 +1398,11 @@ button {
 }
 
 .current-number-display {
-    text-align: center;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
     background: rgba(0,0,0,0.3);
     border-radius: 12px;
     padding: 20px;
@@ -1357,6 +1723,14 @@ body.theme-gold-plate #close-manual-btn {
     color: #d4af37;
 }
 
+body.theme-neon #close-manual-btn {
+    color: #ff007f;
+}
+
+body.theme-beach-forest #close-manual-btn {
+    color: #02c39a;
+}
+
 #tts-toggle-btn {
     padding: 6px 10px;
     font-size: 1.1rem;
@@ -1603,7 +1977,8 @@ body.theme-gold-plate #close-manual-btn {
 
 .host-history-box .history-list-horizontal {
     flex: 1;
-    max-height: none;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .history-bubble {
@@ -1716,7 +2091,7 @@ body.theme-gold-plate #close-manual-btn {
         padding: 4px !important;
         flex: 1 !important;
         max-height: none !important;
-        min-height: auto !important;
+        min-height: 0 !important;
         overflow-y: auto !important;
     }
     .winner-row {
