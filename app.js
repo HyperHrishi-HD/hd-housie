@@ -1,6 +1,10 @@
 // v1 RELEASE
+import { inject } from '@vercel/analytics';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, remove, child, increment, onDisconnect } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+
+// Initialize Vercel Analytics
+inject();
 
 // Configuration for Firebase
 // USER INSTRUCTION: Replace this with your actual Firebase project config.
