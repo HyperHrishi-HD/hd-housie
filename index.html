@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<!-- v1 RELEASE -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD HOUSIE</title>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script>
+      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700&family=Share+Tech+Mono&family=Caveat:wght@700&family=Cinzel:wght@700&family=IM+Fell+English&family=Merriweather:wght@700&family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="manifest" href="/manifest.json">
+    <script>
+      // Clean up old stuck service worker and cache storage glitch
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          for (const key of keys) {
+            caches.delete(key);
+          }
+        });
+      }
+    </script>
+</head>
+<body class="theme-default">
+
+    <div id="app">
+        <!-- Matrix Rain Canvas for Matrix Theme -->
+        <canvas id="matrix-canvas"></canvas>
+
+        <!-- Waves/Ocean Theme Animated Background Elements -->
+        <div id="waves-background" class="theme-background-layer">
+            <video autoplay loop muted playsinline class="waves-video-bg">
+                <source src="/waves_bg.mp4" type="video/mp4">
+            </video>
+            <div class="sea-sun"></div>
+            <div class="clouds-container">
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+            </div>
+        </div>
+
+        <!-- Neon Theme Background Elements -->
+        <div id="neon-background" class="theme-background-layer">
+            <div class="neon-skyline-image"></div>
+            <div class="neon-halo-ambient">
+                <div class="halo-light light-magenta"></div>
+                <div class="halo-light light-cyan"></div>
+                <div class="halo-light light-purple"></div>
+            </div>
+            <div class="neon-grid"></div>
+        </div>
+
+        <!-- Translucent Theme Liquid Background Elements -->
+        <div id="translucent-background" class="theme-background-layer">
+            <div class="translucent-blob blob-1"></div>
+            <div class="translucent-blob blob-2"></div>
+            <div class="translucent-blob blob-3"></div>
+        </div>
+
+        <!-- Forest Theme Bonfire & Aurora Elements -->
+        <div id="forest-background" class="theme-background-layer">
+            <div class="aurora-sky">
+                <div class="aurora aurora-green"></div>
+                <div class="aurora aurora-purple"></div>
+            </div>
+            <div class="forest-silhouette"></div>
+            <div class="bonfire-scene">
+                <div class="bonfire-glow"></div>
+                <div class="bonfire-flames">
+                    <div class="flame flame-1"></div>
+                    <div class="flame flame-2"></div>
+                    <div class="flame flame-3"></div>
+                </div>
+                <div class="bonfire-logs"></div>
+            </div>
+        </div>
+
+        <!-- Galaxy Theme Background Elements -->
+        <div id="galaxy-background" class="theme-background-layer">
+            <video class="galaxy-video-bg" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -4;">
+                <source src="/galaxy_bg.mp4" type="video/mp4">
+            </video>
+            <div class="galaxy-nebula-1"></div>
+            <div class="galaxy-nebula-2"></div>
+            <div class="galaxy-stars-twinkle"></div>
+            <div class="galaxy-core"></div>
+        </div>
+
+        <header id="main-header">
+            <div class="header-top-row">
+                <div id="header-room-code-container" style="display: none; align-items: center; gap: 8px;">
+                    Room: <span id="current-room-code">-----</span>
+                    <button id="header-qrcode-btn" class="nav-btn" style="margin-left: 5px; padding: 2px 8px; font-size: 0.8rem; min-height: 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; cursor: pointer; color: var(--text-color);" title="Room QR Code">QR</button>
+                    <button id="chat-toggle-btn-header" class="nav-btn chat-toggle-btn-trigger" onclick="window.toggleChatWindow(event)" style="margin-left: 10px; padding: 2px 8px; font-size: 0.8rem; min-height: 24px; position: relative; background: var(--primary-color); color: #000; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;">Chat <span class="chat-unread-badge-el" style="display: none; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; background: #e74c3c; border-radius: 50%;"></span></button>
+                    <span id="header-host-stats" style="display: none; margin-left: 10px; font-size: 0.9rem; opacity: 0.85;">
+                        | Pot: 🪙<span id="header-pot">0</span> | Players: <span id="header-players">0</span>
+                    </span>
+                </div>
+                <div class="logo">HD HOUSIE</div>
+                <div id="header-role-badge-container" style="display: none;">
+                    <span id="role-badge" class="role-badge player">Player</span>
+                </div>
+            </div>
+            <div class="user-info" id="header-user-info" style="display: none;">
+                <span id="header-badge" class="badge">Novice</span>
+                <span id="header-name">Player</span>
+                <span class="coins-display">🪙 <span id="header-coins">0</span></span>
+                <button id="tts-toggle-btn" class="nav-btn" style="display: none;">🔈</button>
+                <button id="nav-lobby-btn" class="nav-btn">Lobby</button>
+                <button id="nav-shop-btn" class="nav-btn">Shop</button>
+            </div>
+        </header>
+
+        <main id="view-container">
+            <!-- Auth / Login View -->
+            <section id="auth-view" class="view active">
+                <div class="card glass-card">
+                    <h2>Welcome to HD HOUSIE</h2>
+                    <p>Enter your player name to begin</p>
+                    <input type="text" id="player-name-input" placeholder="Your Name" maxlength="15">
+                    <div style="font-size: 0.75rem; opacity: 0.65; margin-top: 4px; margin-bottom: 12px; font-style: italic;">*Case Sensitive - Type your name correctly</div>
+                    <button id="login-btn" class="primary-btn">Enter</button>
+                </div>
+            </section>
+
+            <!-- Lobby View -->
+            <section id="lobby-view" class="view">
+                <div class="card glass-card">
+                    <h2>Lobby</h2>
+                    <div class="lobby-actions">
+                        <div class="action-group">
+                            <h3>Host a Game</h3>
+                            <p>Create a new room and invite players.</p>
+                            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 0.5rem;">
+                                <button id="create-room-btn" class="primary-btn" style="flex: 2; margin: 0;">Create Room</button>
+                                <button id="ai-mode-toggle-btn" class="secondary-btn" style="flex: 1; margin: 0; padding: 4px; font-size: 0.85rem; background: rgba(255,255,255,0.05); color: var(--text-color); min-height: 38px;">AI Bots: Off</button>
+                            </div>
+                        </div>
+                        <div class="divider">OR</div>
+                        <div class="action-group">
+                            <h3>Join a Game</h3>
+                            <div style="position: relative; display: inline-block;">
+                                <input type="text" id="room-code-input" placeholder="5-Letter Code" maxlength="5" style="text-transform: uppercase;">
+                                <span onclick="document.getElementById('room-code-input').value=''" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 20px; opacity: 0.6; line-height: 1;">&times;</span>
+                            </div>
+                            <br>
+                            <div style="display: flex; gap: 8px; width: 100%; margin-top: 0.5rem; justify-content: center; align-items: center;">
+                                <button id="join-room-btn" class="secondary-btn" style="flex: 1; margin: 0; min-height: 38px;">Join Room</button>
+                                <button id="lobby-qr-scan-btn" class="secondary-btn" style="flex: 1; margin: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--text-color); min-height: 38px; display: inline-flex; align-items: center; justify-content: center;">Scan QR</button>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <button id="logout-btn" class="danger-btn" style="margin-top: 0.5rem;">Logout</button>
+                        <button id="manual-btn" class="nav-btn" style="margin-top: 0.5rem; width: 100%;">How to Play</button>
+                        <button id="lobby-feedback-btn" class="primary-btn" style="margin-top: 0.5rem; width: 100%; background: linear-gradient(135deg, #f39c12, #e67e22); font-weight: bold;">Give Feedback 💡</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Room / Game View -->
+            <section id="game-view" class="view">
+                <div class="game-layout">
+                    <!-- Left Column: Board, Controls & Claims (Window B) -->
+                    <div class="game-left panel glass-card">
+                        <div class="game-stats" style="align-items: center;">
+                            <div class="stat-box">Pot: 🪙 <span id="room-pot">0</span></div>
+                            <div class="stat-box">Players: <span id="room-player-count">0</span></div>
+                        </div>
+
+                        <!-- Host Controls -->
+                        <div id="host-controls" style="display: none;">
+                            <button id="next-number-btn" class="primary-btn big-btn">Draw Next Number</button>
+                            <button id="reset-game-btn" class="danger-btn" style="width: 100%; margin-top: 0.5rem;">Reset Game</button>
+                        </div>
+
+                        <!-- Side-by-side row container on desktop for Last Called and Claims -->
+                        <div class="desktop-row-container">
+                            <!-- Current Number Display -->
+                            <div class="current-number-display" style="position: relative;">
+                                <button id="show-history-btn" class="secondary-btn" style="position: absolute; top: 10px; right: 10px; width: auto; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; background: rgba(255,255,255,0.1); box-shadow: none; z-index: 10;">History</button>
+                                <div id="last-called-number" class="big-number">-</div>
+                                <p>Last Called</p>
+                            </div>
+
+                            <!-- Claims Area (Prize Buttons) -->
+                            <div class="claims-area" id="claims-area" style="display: none;">
+                                <h3>Claim Prize</h3>
+                                <div class="claim-buttons">
+                                    <button class="claim-btn" data-claim="Early 5">Early 5</button>
+                                    <button class="claim-btn" data-claim="4 Corners">4 Corners</button>
+                                    <button class="claim-btn" data-claim="Top Row">Top Row</button>
+                                    <button class="claim-btn" data-claim="Middle Row">Middle Row</button>
+                                    <button class="claim-btn" data-claim="Bottom Row">Bottom Row</button>
+                                    <button class="claim-btn" data-claim="Full House">Full House</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Board 1-90 -->
+                        <div id="housie-board" class="housie-board">
+                            <!-- JS generates 90 cells -->
+                        </div>
+                        
+                        <!-- Payout Info -->
+                        <div class="payout-info">
+                            <h3>Payouts</h3>
+                            <ul>
+                                <li>Early 5: 10% (🪙<span id="payout-early">0</span>)</li>
+                                <li>4 Corners: 10% (🪙<span id="payout-corners">0</span>)</li>
+                                <li>Rows (Top, Middle, Bottom): 10% (🪙<span id="payout-row">0</span>)</li>
+                                <li>Full House: 50% (🪙<span id="payout-fh">0</span>)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Tickets & Setup (Window A) -->
+                    <div class="game-right panel">
+                        <div class="ticket-controls glass-card" id="ticket-setup">
+                            <h3>Get Tickets</h3>
+                            <p>Bet <input type="number" id="bet-amount" value="10" min="0" style="width: 60px; padding: 4px; text-align: center; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); font-family: var(--font-main); display: inline-block; margin-bottom: 0;" /> Coins per ticket.</p>
+                            <select id="ticket-count-select" style="margin-top: 1rem;">
+                                <option value="1">1 Ticket</option>
+                                <option value="2">2 Tickets</option>
+                                <option value="3">3 Tickets</option>
+                                <option value="4">4 Tickets</option>
+                            </select>
+                            <button id="buy-tickets-btn" class="primary-btn">Buy Tickets</button>
+                        </div>
+
+                        <div id="tickets-container" class="tickets-container">
+                            <!-- JS generates tickets -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shop View -->
+            <section id="shop-view" class="view">
+                <div class="card glass-card shop-card" style="position: relative;">
+                    <button id="close-shop-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold; transition: color 0.2s;">&times;</button>
+                    <h2>Shop</h2>
+                    <p>Customize your HD HOUSIE experience.</p>
+                    
+                    <div class="shop-sections">
+                        <div class="shop-section">
+                            <h3>Themes</h3>
+                            <div class="item-grid" id="shop-themes">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                        <div class="shop-section" style="display: none;">
+                            <h3>Skins</h3>
+                            <div class="item-grid" id="shop-skins">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                        <div class="shop-section" style="display: none;">
+                            <h3>Markers</h3>
+                            <div class="item-grid" id="shop-markers">
+                                <!-- JS items -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Host Display / TV View -->
+            <section id="host-display-view" class="view">
+                <div id="host-display-layout" class="host-display-layout">
+                    <!-- Left: Winners, Payouts & Auto Call (separate glass-cards) -->
+                    <div class="host-display-left">
+                        <div class="winners-box glass-card">
+                            <h3>Winners</h3>
+                            <div id="host-winners-list">
+                                <!-- JS claims list -->
+                            </div>
+                        </div>
+                        <div class="host-payout-box glass-card">
+                            <h3>Payouts</h3>
+                            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                                <li>Early 5: 10% (🪙<span id="host-payout-early">0</span>)</li>
+                                <li>4 Corners: 10% (🪙<span id="host-payout-corners">0</span>)</li>
+                                <li>Rows (Top, Middle, Bottom): 10% (🪙<span id="host-payout-row">0</span>)</li>
+                                <li>Full House: 50% (🪙<span id="host-payout-fh">0</span>)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Last Called (Top) & History (Bottom) -->
+                    <div class="host-display-middle">
+                        <div class="last-called-box glass-card" style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 1.2;">
+                            <div id="host-last-called-number" class="big-number">-</div>
+                            <p style="margin-top: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">Last Called</p>
+                        </div>
+                        <div class="host-history-box glass-card" style="width: 100%; display: flex; flex-direction: column; flex: 1;">
+                            <h3 style="margin-bottom: 10px;">Draw History</h3>
+                            <div id="host-history-list" class="history-list-horizontal">
+                                <!-- JS horizontal history bubbles -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Number Grid & Controls (Single column) -->
+                    <div class="host-display-right glass-card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 1rem;">
+                        <div id="host-housie-board" class="housie-board">
+                            <!-- JS generates 90 cells -->
+                        </div>
+                        
+                        <!-- Integrated Mode Controls in the bottom right empty space -->
+                        <div class="host-controls-box glass-card" style="padding: 12px; margin-top: auto; background: rgba(0,0,0,0.4); box-shadow: inset 0 0 15px rgba(243, 156, 18, 0.1); border: 1px solid var(--glass-border); border-radius: 8px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap;">
+                            <!-- Manual Controls -->
+                            <div id="control-manual-panel" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 140px;">
+                                <button id="host-draw-btn" class="primary-btn" style="min-height: 40px; font-size: 1rem; width: 100%; font-weight: bold;">Draw Next Number</button>
+                                <button id="host-reset-btn" class="danger-btn" style="width: 100%; padding: 4px; font-size: 0.85rem; min-height: 34px;">Reset Game</button>
+                            </div>
+                            
+                            <!-- Auto Call Controls -->
+                            <div id="control-auto-panel" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 140px; justify-content: center;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; gap: 10px;">
+                                    <label for="host-auto-seconds" style="font-size: 0.85rem; opacity: 0.9; color: var(--text-color); white-space: nowrap;">Interval: <span id="host-auto-seconds-val" style="font-weight: bold; color: var(--primary-color);">5s</span></label>
+                                    <input type="range" id="host-auto-seconds" min="3" max="15" value="5" style="width: 100%; min-width: 0; flex-grow: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); outline: none; cursor: pointer; accent-color: var(--primary-color);">
+                                </div>
+                                <button id="host-auto-btn" class="primary-btn" style="min-height: 36px; padding: 4px 8px; font-size: 0.9rem; width: 100%;">Start Auto Call</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin View -->
+            <section id="admin-view" class="view">
+                <div class="card glass-card">
+                    <h2>Administrator Console</h2>
+                    <div id="admin-auth-panel" style="max-width: 400px; margin: 0 auto; text-align: center;">
+                        <p style="margin-bottom: 1rem; opacity: 0.85;">Enter administrative verification passcode to proceed:</p>
+                        <input type="password" id="admin-passcode-input" placeholder="Passcode" style="width: 100%; padding: 10px; margin-bottom: 1rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); text-align: center;">
+                        <button id="admin-login-btn" class="primary-btn" style="width: 100%; min-height: 42px;">Authenticate</button>
+                        <button id="admin-back-btn" class="secondary-btn" style="width: 100%; margin-top: 0.5rem; min-height: 38px;">Back to Lobby</button>
+                    </div>
+                    <div id="admin-dashboard-panel" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                            <h3>User Feedback Logs</h3>
+                            <div>
+                                <button id="admin-clear-feedback-btn" class="danger-btn" style="width: auto; margin-bottom: 0; min-height: 36px; padding: 0 15px; display: inline-block;">Clear All</button>
+                            </div>
+                        </div>
+                        <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); margin-bottom: 1.5rem;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--primary-color); background: rgba(0,0,0,0.4);">
+                                        <th style="padding: 12px; font-weight: bold;">User</th>
+                                        <th style="padding: 12px; font-weight: bold;">Category</th>
+                                        <th style="padding: 12px; font-weight: bold;">Rating</th>
+                                        <th style="padding: 12px; font-weight: bold;">Comments</th>
+                                        <th style="padding: 12px; font-weight: bold;">Timestamp</th>
+                                        <th style="padding: 12px; font-weight: bold;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-feedback-tbody">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 20px; opacity: 0.7;">No feedback loaded yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="admin-logout-btn" class="danger-btn" style="width: auto; padding: 8px 20px; min-height: auto;">Sign Out</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Notifications Container -->
+        <div id="notifications-container"></div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 400px; text-align: center; position: relative;">
+            <h3 id="modal-title" style="margin-bottom: 15px; font-size: 1.5rem;">Confirm</h3>
+            <p id="modal-message" style="margin-bottom: 25px; opacity: 0.9;">Are you sure?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="modal-cancel" class="secondary-btn" style="width: auto; padding: 10px 20px;">Cancel</button>
+                <button id="modal-confirm" class="primary-btn" style="width: auto; padding: 10px 20px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 500px; width: 90%; text-align: center; max-height: 80vh; overflow-y: auto; position: relative;">
+            <button id="close-history-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold;">&times;</button>
+            <h3 style="margin-bottom: 20px; font-size: 1.5rem;">Draw History</h3>
+            <div id="history-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <!-- JS generates history bubbles -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruction Manual Modal -->
+    <div id="manual-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative; text-align: left;">
+            <button id="close-manual-btn" class="close-btn">&times;</button>
+            <h3 style="margin-bottom: 20px; font-size: 1.5rem; text-align: center;">How to Play HD HOUSIE</h3>
+            <div style="opacity: 0.9; line-height: 1.6; font-size: 1rem;">
+                <p><strong>1. Starting the Game:</strong><br>Log in and either <b>Create a Room</b> (you become the Host) or <b>Join a Room</b> using a 5-letter code from your Host.</p><br>
+                <p><strong>2. Getting Tickets:</strong><br>Select 1 to 4 tickets. Set a custom bet amount per ticket. (If you have 0 coins, bets are waived and tickets are free!) Click <b>Buy Tickets</b>.</p><br>
+                <p><strong>3. Drawing Numbers (Host Only):</strong><br>The Host clicks <b>Draw Next Number</b>. The number appears on everyone's screen instantly.</p><br>
+                <p><strong>4. Marking Tickets:</strong><br>If the called number is on your ticket, simply tap/click it to stamp it.</p><br>
+                <p><strong>5. Winning & Claiming:</strong><br>
+                - <b>Early 5:</b> Stamp any 5 numbers across all your tickets.<br>
+                - <b>4 Corners:</b> Stamp the first and last numbers on the top and bottom rows of a single ticket.<br>
+                - <b>Rows:</b> Stamp all numbers in the Top, Middle, or Bottom row of a single ticket.<br>
+                - <b>Full House:</b> Stamp all 15 numbers on a single ticket.<br>
+                Click the corresponding <b>Claim Prize</b> button. The game will automatically verify your tickets and pay you!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 450px; width: 90%; position: relative; text-align: left; box-sizing: border-box;">
+            <button id="close-feedback-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold;">&times;</button>
+            <h3 style="margin-bottom: 15px; font-size: 1.5rem; text-align: center; color: var(--primary-color);">Share Your Feedback</h3>
+            <p style="font-size: 0.9rem; opacity: 0.85; margin-bottom: 15px; text-align: center;">We would love to hear your thoughts or reports to improve the game!</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="feedback-category" style="font-size: 0.9rem; font-weight: bold;">Category</label>
+                    <select id="feedback-category" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-color); outline: none;">
+                        <option value="Suggestion">Suggestion 💡</option>
+                        <option value="Bug Report">Bug Report 🐛</option>
+                        <option value="Praise">Praise ❤️</option>
+                        <option value="Other">Other ❓</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="feedback-rating" style="font-size: 0.9rem; font-weight: bold;">Rating</label>
+                    <select id="feedback-rating" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-color); outline: none;">
+                        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                        <option value="4">⭐⭐⭐⭐ Good</option>
+                        <option value="3">⭐⭐⭐ Average</option>
+                        <option value="2">⭐⭐ Poor</option>
+                        <option value="1">⭐ Terrible</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="feedback-text" style="font-size: 0.9rem; font-weight: bold;">Your Comments</label>
+                    <textarea id="feedback-text" rows="4" maxlength="500" placeholder="Write your comments here... (max 500 characters)" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-color); font-family: inherit; resize: none; outline: none; box-sizing: border-box;"></textarea>
+                </div>
+                
+                <button id="submit-feedback-btn" class="primary-btn" style="margin-top: 5px; width: 100%;">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Reply Modal -->
+    <div id="admin-reply-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2050; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 450px; width: 90%; position: relative; text-align: left; box-sizing: border-box; padding: 25px;">
+            <button id="close-admin-reply-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold;">&times;</button>
+            <h3 style="margin-bottom: 15px; font-size: 1.5rem; text-align: center; color: var(--primary-color);">Reply to <span id="admin-reply-target-user">User</span></h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.9rem; font-weight: bold;">User's Comment</label>
+                    <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); font-size: 0.85rem; max-height: 80px; overflow-y: auto; opacity: 0.8; white-space: pre-wrap;" id="admin-reply-user-comment"></div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="admin-reply-text" style="font-size: 0.9rem; font-weight: bold;">Your Reply</label>
+                    <textarea id="admin-reply-text" rows="4" placeholder="Type your reply here..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-color); font-family: inherit; resize: none; outline: none; box-sizing: border-box;"></textarea>
+                </div>
+                <button id="submit-admin-reply-btn" class="primary-btn" style="margin-top: 5px; width: 100%;">Send Reply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Reply Modal (Player popup in Lobby) -->
+    <div id="feedback-reply-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 2100; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div class="glass-card panel" style="max-width: 450px; width: 90%; position: relative; text-align: left; box-sizing: border-box; padding: 25px;">
+            <button id="close-feedback-reply-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 28px; color: var(--text-color); cursor: pointer; font-weight: bold;">&times;</button>
+            <h3 style="margin-bottom: 15px; font-size: 1.5rem; text-align: center; color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.4);">Message from Admin 👑</h3>
+            
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; padding: 15px; margin-bottom: 20px; min-height: 100px; color: var(--text-color); font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap;" id="feedback-reply-message-content">
+                <!-- Reply message goes here -->
+            </div>
+            
+            <button id="close-feedback-reply-confirm-btn" class="primary-btn" style="width: 100%; background: linear-gradient(135deg, #f1c40f, #f39c12); color: #000; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);">Close</button>
+        </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div id="chat-panel" class="glass-card" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 320px; height: 450px; max-height: 80vh; max-width: calc(100vw - 40px); flex-direction: column; z-index: 10000 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; padding: 0 !important;">
+        <!-- Chat Header -->
+        <div id="chat-header-drag-handle" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); cursor: move; user-select: none; touch-action: none;">
+            <h4 style="margin: 0; font-family: var(--font-header); color: var(--primary-color); font-size: 1.1rem; text-shadow: 0 0 5px var(--primary-glow); pointer-events: none;">Room Chat</h4>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button id="chat-close-btn" onclick="window.toggleChatWindow(event)" style="background: transparent; border: none; color: var(--text-color); font-size: 20px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+        </div>
+        
+        <!-- Chat Messages Area -->
+        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 10px 15px; display: flex; flex-direction: column; gap: 8px; pointer-events: auto;">
+            <!-- Messages go here -->
+        </div>
+
+        <!-- Quick Select Messages (Tambola/Housie calls) -->
+        <div class="quick-msg-bar" style="padding: 6px 12px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 6px; overflow-x: auto; white-space: nowrap; background: rgba(0,0,0,0.1); scrollbar-width: none; pointer-events: auto;">
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">Wait wait! 🛑</button>
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">Full House! 🎉</button>
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">Line claimed! 🏁</button>
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">Check ticket! 🔍</button>
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">So close! 🤏</button>
+            <button class="quick-msg-btn" style="padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-color); font-size: 0.75rem; cursor: pointer;">Fast draw please! ⚡</button>
+        </div>
+
+        <!-- Emoji Quick Bar -->
+        <div class="emoji-quick-bar" style="display: flex; justify-content: space-around; padding: 6px 10px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.15); pointer-events: auto;">
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="😂">😂</span>
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="😮">😮</span>
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="🔥">🔥</span>
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="🎉">🎉</span>
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="😢">😢</span>
+            <span class="emoji-btn" style="font-size: 1.25rem; cursor: pointer; transition: transform 0.1s;" data-emoji="👍">👍</span>
+        </div>
+
+        <!-- Input Area -->
+        <div style="display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.08); gap: 8px; pointer-events: auto; position: relative; z-index: 10002;">
+            <input type="text" id="chat-input" placeholder="Type message..." maxlength="80" style="flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-color); font-size: 0.9rem; outline: none;">
+            <button id="chat-send-btn" class="primary-btn" style="width: auto; padding: 0 15px; min-height: auto; height: 36px; border-radius: 18px; font-size: 0.85rem; font-weight: bold; margin-bottom: 0;">Send</button>
+        </div>
+
+        <!-- Resize Handle (Larger touch target and touch-action: none) -->
+        <div id="chat-resizer" style="position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; cursor: se-resize; z-index: 10003; background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.4) 70%, transparent 90%); pointer-events: auto; touch-action: none;"></div>
+    </div>
+
+    <!-- QR Code Generator / Scanner Modal -->
+    <div id="qrcode-modal" class="custom-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2200; backdrop-filter: blur(10px);">
+        <div class="card glass-card" style="width: 90%; max-width: 400px; padding: 1.5rem; text-align: center; border: 1.5px solid var(--glass-border); border-radius: 12px; position: relative;">
+            <button id="qrcode-modal-close" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-color); font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+            <h3 id="qrcode-modal-title" style="margin-top: 0; margin-bottom: 1rem; font-family: 'Outfit', sans-serif; font-weight: bold;">Room QR Code</h3>
+            
+            <!-- Host view: QR Code Display -->
+            <div id="qrcode-generator-area" style="display: none;">
+                <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1rem;">Have players scan this QR code to join your room instantly!</p>
+                <div style="background: white; padding: 12px; display: inline-block; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <img id="qrcode-image" src="" alt="QR Code" style="display: block; width: 200px; height: 200px;">
+                </div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--primary-color); margin-bottom: 0.5rem;" id="qrcode-room-code-display">ROOM: -----</div>
+                <button id="qrcode-copy-link-btn" class="primary-btn" style="min-height: 38px; font-size: 0.9rem; width: 100%;">Copy Join Link</button>
+            </div>
+            
+            <!-- Player/Lobby view: QR Code Scanner -->
+            <div id="qrcode-scanner-area" style="display: none;">
+                <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1rem;">Scan a Host's room QR code to join</p>
+                <!-- Camera Preview Container -->
+                <div id="qr-reader" style="width: 100%; max-width: 300px; height: 250px; min-height: 250px; margin: 0 auto 1rem auto; border-radius: 8px; overflow: visible; border: 1px solid var(--glass-border); background: #000; clip-path: inset(0 round 8px);"></div>
+                <div id="qr-scanner-status" style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 0.5rem;">Accessing camera...</div>
+                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                    <label for="qr-file-input" class="secondary-btn" style="display: block; margin: 0 auto; padding: 6px 12px; font-size: 0.85rem; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: var(--text-color); width: fit-content; min-height: 28px;">
+                        Upload QR Image
+                        <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js" type="module"></script>
+</body>
+</html>

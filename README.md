@@ -1,0 +1,110 @@
+# HD HOUSIE 🪙
+
+**Official Website**: [https://hd-housie.vercel.app](https://hd-housie.vercel.app)
+
+HD HOUSIE is a premium, real-time multiplayer Housie (Bingo/Tambola) web application built for seamless group play. The application is hosted directly on Vercel and backed by Firebase Realtime Database. Below is a comprehensive overview of the site structure, gameplay mechanics, how to play, and software architecture.
+
+---
+
+## 📖 How to Play Housie (Tambola)
+
+Housie (also known as Tambola or 90-Ball Bingo) is a game of chance where numbers are drawn at random and players mark matching numbers on their tickets.
+
+### 1. The Ticket Structure
+- Each ticket is a grid containing 3 rows and 9 columns.
+- Each row contains exactly 5 numbers and 4 empty cells.
+- Each column contains numbers from a specific range:
+  - Column 1: 1–9
+  - Column 2: 10–19
+  - Column 3: 20–29
+  - ... and so on, up to Column 9 which contains 80–90.
+- A total of 15 numbers are present on each ticket.
+
+### 2. Gameplay Steps
+1. **Purchase Tickets**: In the lobby, join a room using the 5-letter room code. Choose to buy between 1 and 4 tickets.
+2. **Announce Numbers**: The Host will draw numbers one by one (ranging from 1 to 90). The numbers drawn will be called out loud and highlighted on the board.
+3. **Mark Tickets**: Check your tickets for the announced number. If you find it, tap/click on the cell to stamp/mark it.
+4. **Claim Winning Milestones**: When your marked numbers form a winning pattern, click the corresponding claim button instantly!
+
+### 3. Winning Patterns (Milestones)
+- **Early 5**: Be the first to mark any 5 numbers across all your tickets.
+- **4 Corners**: Be the first to mark the very first and last numbers on the top and bottom rows of a single ticket (columns 1 and 9).
+- **Top Row**: Mark all 5 numbers on the top row of a ticket.
+- **Middle Row**: Mark all 5 numbers on the middle row of a ticket.
+- **Bottom Row**: Mark all 5 numbers on the bottom row of a ticket.
+- **Full House**: Mark all 15 numbers on a single ticket!
+
+---
+
+## 🎮 Complete Gameplay Walkthrough
+
+### 1. Authentication & Lobby Entrance
+- **Login screen**: Players land on the welcome portal where they enter their name.
+- **Lobby**: After joining, players see two main pathways:
+  - **Host a Game**: Creates a new room with a unique 5-letter access code.
+  - **Join a Game**: Players enter a 5-letter code. Alternatively, they can visit a room-code share URL directly (e.g. `https://hd-housie.vercel.app/#ABCDE`) which auto-fills the room code and forwards the player to the game board immediately upon logging in.
+
+### 2. Role Setup & TV Mode Switching
+- **Player Mode**: The default gameplay interface. Players see stats, payouts, ticket management controls, and the number grid.
+- **Switching to Host Mode**: The room creator has a pulsing orange "Host" badge in the header. Clicking this badge switches their device to **Host TV Mode** (`/hosttv`). The Host TV Mode contains both the full 90-number grid and integrated manual/auto-call controls directly on the same screen. It is fully responsive, adapting seamlessly to desktop/TV screens and mobile devices.
+
+### 3. Ticket Selection & Buy Phase
+- Before the game starts, players choose to buy between **1 and 4 tickets**.
+- Tickets are generated using standard Housie card rules (9 columns x 3 rows grid, containing precisely 15 unique numbers per ticket with no duplicates).
+- Buying tickets registers them under the player's active state in the room.
+
+### 4. Game Loop: Number Drawing
+- **Manual Draw**: The host clicks "Draw Next Number" (or presses the Spacebar on desktop) to select the next random number from the pool of remaining numbers (1–90).
+- **Auto Call**: The host can input an interval (e.g., 5 seconds) and toggle "Start Auto Call". To prevent duplication, only the host client that clicks start runs the timer loop, updating Firebase which syncs the drawing interval globally.
+- **Visual & Audio Announcements**:
+  - The drawn number is highlighted in the grid and added to the **Draw History** (automatically scrolling to show the latest numbers).
+  - A browser-based **Text-to-Speech (TTS)** voice caller speaks the drawn number out loud (single and double digits, e.g., "Single number 7, number seven... Two and three, twenty-three").
+  - Mute state is synced; if the host mutes their remote, the callouts are silenced on all client screens.
+
+### 5. Ticket Marking & Prize Claims
+- **Marking**: As numbers are announced, players tap matching cells on their active tickets to mark them with a premium glassmorphic badge.
+- **Claiming Prizes**: Players can claim specific milestones (Early 5, Corners, Rows, Full House) which are validated instantly by the game engine.
+- **Validation**: Valid claims are registered under the room's global state and displayed immediately on all host and player screens.
+
+### 6. Winning & Game Reset
+- **Celebration**: Valid claims trigger a confetti pop on the player's screen and add their name next to the corresponding prize in the Host's winners list.
+- **Game Reset**: Once the Full House is claimed, the host can click "Reset Game" to clear all active tickets, wipe the pot, empty the drawn numbers history, and prepare the room for the next round.
+
+### 🌟 v1.0 Production-Ready Premium Features
+- **AI Bots Mode**: Option on the lobby screen to toggle AI bots that join rooms, purchase tickets, listen to drawing calls, and claim prizes realistically.
+- **Enhanced Theme Styling**: Premium variables for 6 distinct themes (Default, Midnight, Gold, Neon, Translucent, Galaxy) ensuring strong contrast (minimum 4.5:1 text-to-bg) and customized chat bubble visual overrides.
+- **Holographic Ticket Shimmer**: Smooth, elegant specular holographic sweeps on ticket containers in select themes.
+- **User Feedback Portal**: A built-in feedback overlay allowing players to submit suggestions, bug reports, and praises with rating selections, complete with spam protection.
+
+---
+
+## 💻 How the Code Works
+
+### 1. Single Page Application (SPA) View Routing
+The site acts as a single page application. All screens (Login, Lobby, Game View, Shop, Host Mode) are defined inside `index.html`. The client-side logic swaps views by toggling the `.active` class and controlling CSS visibility. The pathname (`/hosttv`) is dynamically updated in the browser's URL using the HTML5 History API (`window.history.pushState` / `replaceState`), making routing seamless.
+
+### 2. Firebase Event-Driven State Sync
+Data updates are bound between clients using real-time database listeners:
+- Player tickets, balances, and equipped markers are read and updated at `users/USERNAME`.
+- Live game state (draw list, pot, player list, claims, auto-call loop state) is synced under `rooms/ROOMCODE`.
+- User feedback entries and replies are managed under the root-level `feedback` node.
+- All connected clients listen to modifications on their active room reference using Firebase's `onValue` method. When the host mutes their remote, draws a number, or a player claims a prize, every client screen automatically re-renders without refreshing.
+
+### 3. Viewport Constraints & Scrolling Alignment
+- **Viewport Lock**: To prevent card panels or layouts from leaking past the screen edges, the app locks the page container (`#app`) height to `100vh` and disables page scrollbars when game views are active.
+- **Flex Column Sizing**: The columns use a `min-height: 0` layout, allowing the individual card panels (Winners, Payouts, Board) to scale to fit the available space and enable their internal vertical scrollbars (`overflow-y: auto`) instead of spilling out.
+- **Draw History Scrolling**: The history box uses a vertical wrapping flex container. When a number is drawn, the JavaScript automatically sets the container's `scrollTop` to its `scrollHeight`, keeping the latest numbers scrolled in view.
+
+---
+
+## 📂 Project Structure
+
+```
+├── app.js                 # Core game state management, UI events & Firebase subscriptions
+├── index.html             # Views layout markup & HTML structure
+├── styles.css             # Theme stylesheets, animations, and viewport configurations
+├── vercel.json            # Vercel single-page application routing configurations
+├── package.json           # Dev scripts & dependencies
+├── package-lock.json      # Locked npm packages directory
+└── database.rules.json    # Firebase Realtime Database Security Rules
+```

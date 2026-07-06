@@ -1,0 +1,582 @@
+{
+  "rooms": {
+    "DXTRH": {
+      "createdAt": 1781368550909,
+      "host": "HostAuditor",
+      "pot": 0,
+      "status": "waiting"
+    },
+    "HZYYN": {
+      "createdAt": 1781368678844,
+      "host": "HostAuditor",
+      "numbers": [
+        32
+      ],
+      "pot": 0,
+      "status": "waiting",
+      "tickets": {
+        "PlayerAuditor": [
+          [
+            [
+              7,
+              10,
+              0,
+              0,
+              0,
+              50,
+              68,
+              0,
+              84
+            ],
+            [
+              0,
+              16,
+              25,
+              36,
+              42,
+              0,
+              0,
+              75,
+              0
+            ],
+            [
+              8,
+              18,
+              26,
+              39,
+              49,
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              3,
+              11,
+              0,
+              33,
+              0,
+              51,
+              62,
+              0,
+              0
+            ],
+            [
+              5,
+              0,
+              22,
+              0,
+              0,
+              0,
+              69,
+              74,
+              82
+            ],
+            [
+              0,
+              14,
+              28,
+              35,
+              49,
+              0,
+              0,
+              0,
+              89
+            ]
+          ],
+          [
+            [
+              0,
+              19,
+              24,
+              31,
+              0,
+              0,
+              60,
+              0,
+              80
+            ],
+            [
+              2,
+              0,
+              0,
+              32,
+              0,
+              59,
+              66,
+              0,
+              82
+            ],
+            [
+              0,
+              0,
+              27,
+              34,
+              41,
+              0,
+              68,
+              78,
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    "JIBSK": {
+      "createdAt": 1781368569422,
+      "host": "HostAuditor",
+      "numbers": [
+        87
+      ],
+      "pot": 45,
+      "status": "waiting",
+      "tickets": {
+        "PlayerAuditor": [
+          [
+            [
+              3,
+              13,
+              25,
+              0,
+              0,
+              0,
+              66,
+              0,
+              84
+            ],
+            [
+              0,
+              0,
+              0,
+              35,
+              40,
+              51,
+              68,
+              75,
+              0
+            ],
+            [
+              0,
+              16,
+              28,
+              0,
+              41,
+              54,
+              0,
+              79,
+              0
+            ]
+          ],
+          [
+            [
+              5,
+              10,
+              20,
+              33,
+              0,
+              59,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              21,
+              34,
+              47,
+              0,
+              64,
+              0,
+              86
+            ],
+            [
+              9,
+              14,
+              26,
+              0,
+              0,
+              0,
+              65,
+              74,
+              0
+            ]
+          ],
+          [
+            [
+              4,
+              11,
+              0,
+              0,
+              44,
+              53,
+              0,
+              0,
+              90
+            ],
+            [
+              7,
+              15,
+              29,
+              36,
+              0,
+              0,
+              69,
+              0,
+              0
+            ],
+            [
+              8,
+              19,
+              0,
+              38,
+              48,
+              0,
+              0,
+              70,
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    "LCWYF": {
+      "createdAt": 1781368594082,
+      "host": "HostAuditor",
+      "numbers": [
+        66
+      ],
+      "pot": 45,
+      "status": "waiting",
+      "tickets": {
+        "PlayerAuditor": [
+          [
+            [
+              5,
+              17,
+              0,
+              0,
+              40,
+              50,
+              0,
+              70,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              35,
+              0,
+              54,
+              67,
+              79,
+              82
+            ],
+            [
+              0,
+              19,
+              20,
+              36,
+              0,
+              59,
+              68,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              16,
+              28,
+              31,
+              0,
+              0,
+              0,
+              71,
+              89
+            ],
+            [
+              4,
+              18,
+              29,
+              34,
+              0,
+              0,
+              0,
+              78,
+              0
+            ],
+            [
+              8,
+              0,
+              0,
+              38,
+              40,
+              56,
+              68,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0,
+              24,
+              33,
+              42,
+              0,
+              65,
+              72,
+              0
+            ],
+            [
+              0,
+              11,
+              0,
+              0,
+              44,
+              57,
+              69,
+              77,
+              0
+            ],
+            [
+              3,
+              12,
+              0,
+              0,
+              45,
+              0,
+              0,
+              78,
+              86
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  "users": {
+    "HD": {
+      "coins": 997654,
+      "equipped": {
+        "marker": "fire-glow",
+        "skin": "holographic",
+        "theme": "gold-plate"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp",
+          "fire-glow"
+        ],
+        "skins": [
+          "none",
+          "ruby",
+          "holographic",
+          "sapphire",
+          "gold",
+          "amethyst",
+          "emerald"
+        ],
+        "themes": [
+          "default",
+          "midnight-star",
+          "gold-plate",
+          "matrix-rain"
+        ]
+      },
+      "name": "HD"
+    },
+    "HostAuditor": {
+      "coins": 100,
+      "equipped": {
+        "marker": "glass-stamp",
+        "skin": "none",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp"
+        ],
+        "skins": [
+          "none"
+        ],
+        "themes": [
+          "default"
+        ]
+      },
+      "name": "HostAuditor"
+    },
+    "Hrishi": {
+      "coins": 230,
+      "equipped": {
+        "marker": "fire-glow",
+        "skin": "holographic",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp",
+          "fire-glow"
+        ],
+        "skins": [
+          "none",
+          "holographic",
+          "gold"
+        ],
+        "themes": [
+          "default",
+          "midnight-star",
+          "gold-plate",
+          "matrix-rain"
+        ]
+      },
+      "name": "Hrishi"
+    },
+    "PlayerAuditor": {
+      "coins": 10,
+      "equipped": {
+        "marker": "glass-stamp",
+        "skin": "none",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp"
+        ],
+        "skins": [
+          "none"
+        ],
+        "themes": [
+          "default"
+        ]
+      },
+      "name": "PlayerAuditor"
+    },
+    "Pravi": {
+      "coins": 16294,
+      "equipped": {
+        "marker": "fire-glow",
+        "skin": "holographic",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp",
+          "fire-glow"
+        ],
+        "skins": [
+          "none",
+          "ruby",
+          "sapphire",
+          "emerald",
+          "amethyst",
+          "gold",
+          "holographic"
+        ],
+        "themes": [
+          "default",
+          "midnight-star",
+          "gold-plate",
+          "matrix-rain"
+        ]
+      },
+      "name": "Pravi"
+    },
+    "SUNDAR": {
+      "coins": 50,
+      "equipped": {
+        "marker": "glass-stamp",
+        "skin": "none",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp"
+        ],
+        "skins": [
+          "none"
+        ],
+        "themes": [
+          "default"
+        ]
+      },
+      "name": "SUNDAR"
+    },
+    "Shaurya Ravikanth": {
+      "coins": 1000,
+      "equipped": {
+        "marker": "glass-stamp",
+        "skin": "none",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp"
+        ],
+        "skins": [
+          "none"
+        ],
+        "themes": [
+          "default"
+        ]
+      },
+      "name": "Shaurya Ravikanth"
+    },
+    "Swapna": {
+      "coins": 7232,
+      "equipped": {
+        "marker": "glass-stamp",
+        "skin": "ruby",
+        "theme": "matrix-rain"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp"
+        ],
+        "skins": [
+          "none",
+          "ruby",
+          "sapphire"
+        ],
+        "themes": [
+          "default",
+          "midnight-star",
+          "matrix-rain"
+        ]
+      },
+      "name": "Swapna"
+    },
+    "TEST": {
+      "coins": 187,
+      "equipped": {
+        "marker": "fire-glow",
+        "skin": "gold",
+        "theme": "default"
+      },
+      "inventory": {
+        "markers": [
+          "glass-stamp",
+          "fire-glow"
+        ],
+        "skins": [
+          "none",
+          "holographic",
+          "gold"
+        ],
+        "themes": [
+          "default",
+          "midnight-star",
+          "gold-plate",
+          "matrix-rain"
+        ]
+      },
+      "name": "TEST"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# v1 RELEASE
+node_modules/
+.DS_Store
+.env
+dist/
+build/
+*.log
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+.agents/
+scratch/

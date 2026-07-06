@@ -1,0 +1,25 @@
+{
+  "rules": {
+    "rooms": {
+      ".read": "true",
+      ".write": "true"
+    },
+    "users": {
+      "admin_tokens": {
+        ".read": "false",
+        "$hash": {
+          ".read": "true",
+          ".write": "false"
+        }
+      },
+      "$username": {
+        ".read": "true",
+        ".write": "true"
+      }
+    },
+    "feedback": {
+      ".read": "true",
+      ".write": "true"
+    }
+  }
+}
