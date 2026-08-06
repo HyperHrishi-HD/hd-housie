@@ -579,6 +579,50 @@
         </div>
     </div>
 
+    <!-- Match Summary Modal -->
+    <div id="game-summary-modal" class="custom-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2300; backdrop-filter: blur(12px);">
+        <div class="card glass-card" style="width: 90%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; text-align: center; border: 1.5px solid var(--primary-color); border-radius: 16px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+            <button id="game-summary-close-btn" style="position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--text-color); font-size: 1.6rem; cursor: pointer; line-height: 1;">&times;</button>
+            <div style="font-size: 2.5rem; margin-bottom: 0.2rem;">🏆</div>
+            <h2 style="margin: 0; font-family: 'Outfit', sans-serif; color: var(--primary-color); text-shadow: 0 0 10px var(--primary-glow);">Match Summary</h2>
+            <p id="summary-winner-text" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.5rem; color: #f1c40f;">Full House Winner: -----</p>
+            
+            <!-- Summary Stats Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1rem 0; text-align: center;">
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 0.8rem; opacity: 0.7;">Numbers Drawn</div>
+                    <div id="summary-stat-numbers" style="font-size: 1.2rem; font-weight: bold; color: var(--text-color);">0 / 90</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 0.8rem; opacity: 0.7;">Game Duration</div>
+                    <div id="summary-stat-time" style="font-size: 1.2rem; font-weight: bold; color: var(--text-color);">00m 00s</div>
+                </div>
+            </div>
+
+            <!-- Fun Match Awards -->
+            <h4 style="margin: 1rem 0 0.5rem 0; font-family: 'Outfit', sans-serif; opacity: 0.9; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">🎖️ Match Awards</h4>
+            <div style="display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 0.88rem; margin-bottom: 1rem;">
+                <div style="background: rgba(46, 204, 113, 0.1); padding: 8px 12px; border-radius: 6px; border-left: 3px solid #2ecc71;">
+                    <strong>⚡ Speed Dauber:</strong> <span id="summary-award-speed">-----</span>
+                </div>
+                <div style="background: rgba(155, 89, 182, 0.1); padding: 8px 12px; border-radius: 6px; border-left: 3px solid #9b59b6;">
+                    <strong>🎯 Most Daubed:</strong> <span id="summary-award-daubed">-----</span>
+                </div>
+                <div style="background: rgba(241, 196, 15, 0.1); padding: 8px 12px; border-radius: 6px; border-left: 3px solid #f1c40f;">
+                    <strong>🍀 Winning Number:</strong> <span id="summary-award-lucky">-----</span>
+                </div>
+            </div>
+
+            <!-- Claims Log Table -->
+            <h4 style="margin: 0.8rem 0 0.5rem 0; font-family: 'Outfit', sans-serif; opacity: 0.9; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">📜 Prize Claims</h4>
+            <div id="summary-claims-list" style="max-height: 140px; overflow-y: auto; text-align: left; font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px; margin-bottom: 1rem;">
+                <!-- Claims dynamically inserted here -->
+            </div>
+
+            <button id="summary-back-btn" class="primary-btn" style="width: 100%; margin-top: 0.5rem; min-height: 40px; font-weight: bold;">Close</button>
+        </div>
+    </div>
+
     <script src="app.js" type="module"></script>
 </body>
 </html>

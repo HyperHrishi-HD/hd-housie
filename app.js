@@ -1279,6 +1279,10 @@ async function joinGameUI() {
                 stopAutoCall();
             }
 
+            appState.room.createdAt = data.createdAt || appState.room.createdAt || Date.now();
+            if (!appState.gameStartTime) {
+                appState.gameStartTime = data.createdAt || Date.now();
+            }
             appState.room.pot = data.pot || 0;
             appState.room.numbers = data.numbers || [];
             appState.room.claims = newClaims;
@@ -1667,6 +1671,7 @@ function renderTickets() {
                     
                     // Click to mark
                     cell.addEventListener('click', () => {
+                        triggerHaptic(35);
                         const markerKey = `mark_${appState.room.code}_${tIdx}_${r}_${c}`;
                         if (cell.querySelector('.marker')) {
                             cell.querySelector('.marker').remove();
@@ -2842,6 +2847,14 @@ function playVictoryEffects(winner, winnerCoins, claimType) {
     const rankInfo = getPlayerRankInfo(winnerCoins);
     const isHighRank = ['Elite', 'Champion', 'Master', 'Grandmaster', 'Mythic', 'Legend'].includes(rankInfo.name);
     
+    // Track match claims log
+    if (!appState.matchClaimsLog) appState.matchClaimsLog = [];
+    appState.matchClaimsLog.push({
+        type: claimType,
+        player: winner,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    });
+
     // Play sound/visuals only if in TV mode (Host or Player TV mode) OR if I am the winner who claimed.
     const isTvMode = !!(appState.isHostView || appState.isPlayerTvView);
     const isMe = (winner === appState.player.name);
@@ -2855,6 +2868,9 @@ function playVictoryEffects(winner, winnerCoins, claimType) {
                 triggerConfetti();
                 playVictorySound(false);
             }
+            setTimeout(() => {
+                showMatchSummaryModal({ winnerName: winner });
+            }, 1200);
         } else {
             playVictorySound(false);
         }
@@ -3784,3 +3800,85 @@ function closeQrCodeModal() {
 
 window.openQrCodeModal = openQrCodeModal;
 window.closeQrCodeModal = closeQrCodeModal;
+
+/* ==========================================================================
+   FEATURE ENHANCEMENTS: HAPTIC FEEDBACK & MATCH SUMMARY
+   ========================================================================== */
+
+// 1. Mobile Haptic Feedback Helper
+function triggerHaptic(pattern = 35) {
+    if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+        try {
+            navigator.vibrate(pattern);
+        } catch (e) {
+            // Browser policy catch
+        }
+    }
+}
+window.triggerHaptic = triggerHaptic;
+
+// 2. End-of-Game Match Summary Modal
+function showMatchSummaryModal(data = {}) {
+    const modal = document.getElementById('game-summary-modal');
+    if (!modal) return;
+
+    const winnerText = document.getElementById('summary-winner-text');
+    const numbersStat = document.getElementById('summary-stat-numbers');
+    const timeStat = document.getElementById('summary-stat-time');
+    const speedAward = document.getElementById('summary-award-speed');
+    const daubedAward = document.getElementById('summary-award-daubed');
+    const luckyAward = document.getElementById('summary-award-lucky');
+    const claimsList = document.getElementById('summary-claims-list');
+
+    const winner = data.winnerName || (appState.player ? appState.player.name : "Player");
+    winnerText.innerText = `Full House Winner: 🏆 ${winner}`;
+
+    const drawnCount = data.drawnCount || (appState.room && appState.room.drawnNumbers ? appState.room.drawnNumbers.length : 0);
+    numbersStat.innerText = `${drawnCount} / 90`;
+
+    const startTime = data.gameStartTime || appState.gameStartTime || appState.room.createdAt || Date.now();
+    const durationMs = data.durationMs || (Date.now() - startTime);
+    const secondsTotal = Math.max(1, Math.floor(durationMs / 1000));
+    const m = Math.floor(secondsTotal / 60).toString().padStart(2, '0');
+    const s = (secondsTotal % 60).toString().padStart(2, '0');
+    timeStat.innerText = `${m}m ${s}s`;
+
+    speedAward.innerText = data.speedDauber || winner;
+    daubedAward.innerText = data.mostDaubed || `${winner} (15 Numbers)`;
+    luckyAward.innerText = data.winningNumber ? `#${data.winningNumber}` : (appState.room && appState.room.numbers && appState.room.numbers.length > 0 ? `#${appState.room.numbers[appState.room.numbers.length - 1]}` : "#--");
+
+    claimsList.innerHTML = '';
+    const claims = data.claims || appState.matchClaimsLog || [];
+    if (claims.length === 0) {
+        claimsList.innerHTML = '<div style="opacity: 0.6; font-style: italic;">No claims recorded yet.</div>';
+    } else {
+        claims.forEach(c => {
+            const item = document.createElement('div');
+            item.style.background = 'rgba(255,255,255,0.05)';
+            item.style.padding = '6px 10px';
+            item.style.borderRadius = '6px';
+            item.style.borderLeft = '3px solid var(--primary-color)';
+            item.style.marginBottom = '4px';
+            item.innerText = `🎉 ${c.type}: ${c.player} (at ${c.time || 'Match'})`;
+            claimsList.appendChild(item);
+        });
+    }
+
+    modal.style.display = 'flex';
+    triggerHaptic([100, 50, 150, 50, 200]);
+}
+
+function closeMatchSummaryModal() {
+    const modal = document.getElementById('game-summary-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const summaryClose = document.getElementById('game-summary-close-btn');
+    const summaryBack = document.getElementById('summary-back-btn');
+    if (summaryClose) summaryClose.addEventListener('click', closeMatchSummaryModal);
+    if (summaryBack) summaryBack.addEventListener('click', closeMatchSummaryModal);
+});
+
+window.showMatchSummaryModal = showMatchSummaryModal;
+window.closeMatchSummaryModal = closeMatchSummaryModal;
